@@ -1,13 +1,6 @@
-local ScriptLink = [[https://pastebin.com/raw/E3XMtx2X]]
+local ScriptLink = [[PASTE LINK HERE]]
 
---[[Tutorial:
-		1: Paste the link of your script above where it says "PASTE LINK HERE"
-			Example: local ScriptLink = "https://pastebin.com/raw/E3XMtx2X"
-			
-		2: Upload this entire script to Pastebin and load using h/[RAW LINK HERE]
-		    OR
-		   Copy this entire script and in Sb Console type in c/ and press Ctrl + V
---]]
+--//Do not touch anything below this line, you may break it.
 local FeSource = nil;pcall(function()FeSource = game:GetService("HttpService"):GetAsync("https://raw.githubusercontent.com/WaverlyCole/FE-Compatibility-VoidSb-/master/translate.lua")end);
 local ScriptSource = nil;pcall(function()ScriptSource = game:GetService("HttpService"):GetAsync(ScriptLink)end);
 if not FeSource then error("Failed to grab update! Try again later.",0)end;if not ScriptSource then error("Failed to get link!",0)end;
