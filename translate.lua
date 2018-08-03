@@ -1,4 +1,4 @@
-if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility: by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;
+if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;
 do
 	script.Parent = InternalData.RealOwner.Character
 	local Event = Instance.new("RemoteEvent");Event.Name = "UserInput"
@@ -49,7 +49,35 @@ do
 		end
 	]],InternalData.RealOwner.Character)
 end
-RealGame = game;game = setmetatable({},{
+InternalData.RealInstance = Instance;Instance = setmetatable({},{
+	__index = function (self,Index)
+		if Index:lower() == 'new' then
+			return function (Type, Parent)
+				local Real = InternalData.RealInstance.new(Type,Parent)
+				if not Type then return end
+				if Type == "BillboardGui" then
+					return setmetatable({},{
+						__index = function (self,Index)
+							return Real[Index]
+						end;
+						__newindex = function (self,Index,Value)
+							if Index:lower() == "playertohidefrom" then
+								if Value.Name == owner.Name then Real[Index] = InternalData.RealOwner else Real[Index] = Value end
+							else
+								Real[Index] = Value
+							end
+						end;
+						__tostring = function(self) return tostring(Real) end;
+					})
+				end
+				return Real
+			end
+		end
+		return InternalData.RealInstance[Index]
+	end;
+	__tostring = function(self) return tostring(InternalData.RealInstance) end;
+});
+InternalData.RealGame = game;game = setmetatable({},{
 	__index = function (self,Index)
 		local Sandbox = function (Thing)
 			if Thing:IsA("Player") then
@@ -62,15 +90,17 @@ RealGame = game;game = setmetatable({},{
 								return function (self)return InternalData["Mouse"] end
 							end
 							return function (self,...)return RealPlayer[Index](RealPlayer,...) end
+						elseif Index == "FakePlayer" then
+							return true
 						end
 						return RealPlayer[Index]
 					end;
-					__tostring = function(self) return RealPlayer.Name end
+					__tostring = function(self) return tostring(RealPlayer) end
 				})
 			end
 		end
-		if RealGame[Index] then
-			local Type = type(RealGame[Index])
+		if InternalData.RealGame[Index] then
+			local Type = type(InternalData.RealGame[Index])
 			if Type == "function" then
 				if Index:lower() == "getservice" or Index:lower() == "service" then
 					return function (self,Service)
@@ -78,16 +108,16 @@ RealGame = game;game = setmetatable({},{
 							["players"] = function()
 								return setmetatable({},{
 									__index = function (self2,Index2)
-										local RealService = RealGame:GetService(Service)
+										local RealService = InternalData.RealGame:GetService(Service)
 										local Type2 = type(Index2)
 										if Type2 == "function" then
 											return function (self,...) return RealService[Index2](RealService,...)end
 										else
-											if Index2:lower() == "localplayer" then print'local'return Sandbox(InternalData.RealOwner) end
+											if Index2:lower() == "localplayer" then return Sandbox(InternalData.RealOwner) end
 											return RealService[Index2]
 										end
 									end;
-									__tostring = function(self) return RealGame:GetService(Service).Name end
+									__tostring = function(self) return tostring(InternalData.RealGame:GetService(Service)) end
 								})
 							end;
 							["contextactionservice"] = function() return InternalData["ContextActionService"] end;
@@ -101,28 +131,30 @@ RealGame = game;game = setmetatable({},{
 											return function (self,...) return RealService[Index2](RealService,...) end
 										else
 											local RunServices = {
-												["bindtorenderstep"] = function() return function (self,Name,Priority,Function) return RealGame:GetService("RunService").Stepped:Connect(Function) end end;
+												["bindtorenderstep"] = function() return function (self,Name,Priority,Function) return InternalData.RealGame:GetService("RunService").Stepped:Connect(Function) end end;
 												["renderstepped"] = function() return RealService["Stepped"] end
 											}
 											if RunServices[Index2:lower()] then return RunServices[Index2:lower()]() end
 											return RealService[Index2]
 										end
-									end
+									end;
+									__tostring = function(self) return tostring(InternalData.RealGame:GetService("RunService")) end
 								})
 							end
 						}
 						if FakeServices[Service:lower()] then return FakeServices[Service:lower()]() end
-						return RealGame:GetService(Service)
+						return InternalData.RealGame:GetService(Service)
 					end
 				end
-				return function (self,...) return RealGame[Index](RealGame,...) end
+				return function (self,...) return InternalData.RealGame[Index](InternalData.RealGame,...) end
 			else
 				if game:GetService(Index) then return game:GetService(Index) end
-				return RealGame[Index]
+				return InternalData.RealGame[Index]
 			end
 		end
 		return nil
-	end
+	end;
+	__tostring = function(self) return tostring(InternalData.game) end
 });Game = game;owner = game:GetService("Players").LocalPlayer;script = Instance.new("Script");print("Complete! Running...")
 
 --//Paste script below this line.
