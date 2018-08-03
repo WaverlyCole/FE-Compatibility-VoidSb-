@@ -16,3 +16,8 @@ Features:
     Sandbox: Server-Sided Sandbox to treat itself like it was a LocalScript.
   
     Replication: Automatically created Events to replicate input from Client.
+
+
+Report bugs here:
+
+    https://github.com/Mokiros/roblox-FE-compatibility/issues/new
