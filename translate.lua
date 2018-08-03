@@ -156,6 +156,6 @@ InternalData.RealGame = game;game = setmetatable({},{
 		return nil
 	end;
 	__tostring = function(self) return tostring(InternalData.game) end
-});Game = game;owner = game:GetService("Players").LocalPlayer;script = Instance.new("Script");print("Complete! Running...")
+});Game = game;owner = game:GetService("Players").LocalPlayer;script = Instance.new("Script");print("Complete!")
 
 --//Paste script below this line.
