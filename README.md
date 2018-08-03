@@ -20,7 +20,7 @@ Features:
 
 Report bugs here:
 
-    Please check check to see if your issue is already known before reporting it.
+    Please check to see if your issue is already known before reporting it.
     
     
     https://github.com/Mokiros/roblox-FE-compatibility/issues/new
