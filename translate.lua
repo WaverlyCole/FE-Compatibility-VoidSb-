@@ -125,7 +125,7 @@ InternalData.RealGame = game;game = setmetatable({},{
 							["runservice"] = function()
 								return setmetatable({},{
 									__index = function(self2,Index2)
-										local RealService = RealGame:GetService(Service)
+										local RealService = InternalData.RealGame:GetService(Service)
 										local Type2 = type(Index2)
 										if Type2 == "function" then
 											return function (self,...) return RealService[Index2](RealService,...) end
