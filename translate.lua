@@ -42,9 +42,10 @@ do
 		end
 		UserInputService.InputBegan:Connect(Input);UserInputService.InputEnded:Connect(Input)
 		local Hit,Target
-		while wait(1/30) do
+		while wait(1/60) do
 			if Hit ~= Mouse.Hit or Target ~= Mouse.Target then
-				Hit,Target = Mouse.Hit,Mouse.Target;Event:FireServer({["MouseEvent"]=true,["Target"]=Target,["Hit"]=Hit})
+				Hit = Mouse.Hit;Target = Mouse.Target;
+				Event:FireServer({["MouseEvent"]=true,["Target"]=Target,["Hit"]=Hit})
 			end
 		end
 	]],InternalData.RealOwner.Character)
