@@ -1,4 +1,4 @@
-if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;
+if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;InternalData.Version = "v1.0.0"
 do
 	script.Parent = InternalData.RealOwner.Character
 	local Event = Instance.new("RemoteEvent");Event.Name = "UserInput"
