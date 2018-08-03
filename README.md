@@ -24,3 +24,12 @@ Report bugs here:
     
     
     https://github.com/Mokiros/roblox-FE-compatibility/issues/new
+    
+    
+    
+    
+    
+    
+ 
+ 
+(You can check out the inspiration for this project here-> https://github.com/Mokiros/roblox-FE-compatibility)
