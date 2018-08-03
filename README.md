@@ -15,7 +15,7 @@ Features:
 
     Sandbox: Server-Sided Sandbox to treat itself like it was a LocalScript.
   
-    Replication: Automatically created Events to replicate input from Client.
+    Replication: Automatically creates Events to replicate input from Client.
 
 
 Report bugs here:
