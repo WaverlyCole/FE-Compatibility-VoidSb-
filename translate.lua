@@ -1,55 +1,41 @@
-if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility: by WaverlyCole");InternalData = {}
+if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility: by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;
 do
-	script.Parent = owner.Character
+	script.Parent = InternalData.RealOwner.Character
 	local Event = Instance.new("RemoteEvent");Event.Name = "UserInput"
-	local function NewFakeEvent()
-		local Bind = Instance.new("BindableEvent")
-		local Fake;Fake = {Connections = {},
-		fakeEvent=true;
-		Connect=function(self,Func)
-			Bind.Event:connect(Func)
-			self.Connections[Bind] = true
-			return setmetatable({Connected = true},{
-			__index = function (self,Index)
-				if Index:lower() == "disconnect" then
-					return function() Fake.Connections[Bind] = false;self.Connected = false end
-				end
-				return Fake[Index]
-			end;
-			__tostring = function() return "Connection" end;
-		})
-		end}
-		Fake.connect = Fake.Connect;return Fake;
-	end
-	local Mouse = {Target=nil,Hit=CFrame.new(),KeyUp=NewFakeEvent(),KeyDown=NewFakeEvent(),Button1Up=NewFakeEvent(),Button1Down=NewFakeEvent()}
-	local UserInputService = {InputBegan=NewFakeEvent(),InputEnded=NewFakeEvent()}
+	local function createObject (connections, index)
+    	local proxy = newproxy (true);local meta = getmetatable (proxy);
+    	local runbind = function (self, i, ...) connections[i]:Fire (...); end;
+		while (#connections > 0) do connections [table.remove (connections, 1)] = Instance.new ('BindableEvent');end;
+    	meta.__index = function (self, i)
+        	if (i == 'TriggerEvent') then return runbind end;
+        	return connections[i] and connections[i].Event or index[i];
+    	end;
+    	meta.__newindex = index;meta.__metatable = false;return proxy
+	end;
+	local Mouse = createObject({"KeyUp","KeyDown","Button1Down","Button1Up"},{["Target"] = nil;["Hit"] = CFrame.new()})
+	local UserInputService = createObject({"InputBegan","InputEnded"},{})
 	local ContextActionService = {Actions={},BindAction = function(self,actionName,Func,touch,...)
 		self.Actions[actionName] = Func and {Name=actionName,Function=Func,Keys={...}} or nil
 	end};ContextActionService.UnBindAction = ContextActionService.BindAction
-	local function TriggerEvent(self,Event,...)
-		local Trigger = Mouse[Event]
-		if Trigger and Trigger.fakeEvent and Trigger.Connections then
-			for Connection,Active in pairs(Trigger.Connections) do if Active then Connection:Fire(...) end end
-		end
-	end
-	Mouse.TrigEvent = TriggerEvent;UserInputService.TrigEvent = TriggerEvent
 	Event.OnServerEvent:Connect(function(FiredBy,Input)
-		if FiredBy.Name ~= owner.Name then return end
+		if FiredBy.Name ~= InternalData.RealOwner.Name then return end
 		if Input.MouseEvent then
 			Mouse.Target = Input.Target;Mouse.Hit = Input.Hit
 		else
 			local Begin = Input.UserInputState == Enum.UserInputState.Begin
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then return Mouse:TrigEvent(Begin and "Button1Down" or "Button1Up") end
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 then return Mouse:TriggerEvent(Begin and "Button1Down" or "Button1Up") end
 			for _,Action in pairs(ContextActionService.Actions) do
 				for _,Key in pairs(Action.Keys) do if Key==Input.KeyCode then Action.Function(Action.Name,Input.UserInputState,Input) end end
 			end
-			Mouse:TrigEvent(Begin and "KeyDown" or "KeyUp",Input.KeyCode.Name:lower())
-			UserInputService:TrigEvent(Begin and "InputBegan" or "InputEnded",Input,false)
+			Mouse:TriggerEvent(Begin and "KeyDown" or "KeyUp",Input.KeyCode.Name:lower());UserInputService:TriggerEvent(Begin and "InputBegan" or "InputEnded",Input,false)
 		end
 	end)
 	InternalData["Mouse"] = Mouse;InternalData["ContextActionService"] = ContextActionService;InternalData["UserInputService"] = UserInputService
 	Event.Parent = NLS([[
-		local Player = owner;local Event = script:WaitForChild("UserInput");local UserInputService = game:GetService("UserInputService");local Mouse = Player:GetMouse()
+		local Player = owner;
+		local Event = script:WaitForChild("UserInput");
+		local UserInputService = game:GetService("UserInputService");
+		local Mouse = Player:GetMouse();
 		local Input = function(Input,gameProcessedEvent)
 			if gameProcessedEvent then return end
 			Event:FireServer({KeyCode=Input.KeyCode,UserInputType=Input.UserInputType,UserInputState=Input.UserInputState})
@@ -61,7 +47,7 @@ do
 				Hit,Target = Mouse.Hit,Mouse.Target;Event:FireServer({["MouseEvent"]=true,["Target"]=Target,["Hit"]=Hit})
 			end
 		end
-	]],owner.Character)
+	]],InternalData.RealOwner.Character)
 end
 RealGame = game;game = setmetatable({},{
 	__index = function (self,Index)
@@ -97,7 +83,7 @@ RealGame = game;game = setmetatable({},{
 										if Type2 == "function" then
 											return function (self,...) return RealService[Index2](RealService,...)end
 										else
-											if Index2:lower() == "localplayer" then return Sandbox(owner) end
+											if Index2:lower() == "localplayer" then print'local'return Sandbox(InternalData.RealOwner) end
 											return RealService[Index2]
 										end
 									end;
