@@ -13,6 +13,8 @@ Instructions:
 
 Features:
 
+    Auto-Updates: To be sure you are always using the latest version.
+
     Sandbox: Server-Sided Sandbox to treat itself like it was a LocalScript.
   
     Replication: Automatically creates Events to replicate input from Client.
