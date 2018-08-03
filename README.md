@@ -4,9 +4,9 @@ This will translate traditional LocalScripts to be compatible with the new FE re
 
 Instructions:
 
-    1: Get and copy source of translate.lua
+    1: Get and copy source of auto-updating.lua
   
-    2: Paste the source of your LocalScript below the very last line of translate.lua
+    2: Paste the link of your script where it says [[PASTE LINK HERE]]
   
     3: Run as a normal Script.
 
