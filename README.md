@@ -25,7 +25,7 @@ Report bugs here:
     Please check to see if your issue is already known before reporting it.
     
     
-    https://github.com/Mokiros/roblox-FE-compatibility/issues/new
+    https://github.com/WaverlyCole/FE-Compatibility-VoidSb-/issues/new
     
     
     
