@@ -1,4 +1,4 @@
-if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;InternalData.Version = "v1.0.0"
+if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;InternalData.RealObjs = {}
 do
 	script.Parent = InternalData.RealOwner.Character
 	local Event = Instance.new("RemoteEvent");Event.Name = "UserInput"
@@ -18,7 +18,7 @@ do
 		self.Actions[actionName] = Func and {Name=actionName,Function=Func,Keys={...}} or nil
 	end};ContextActionService.UnBindAction = ContextActionService.BindAction
 	Event.OnServerEvent:Connect(function(FiredBy,Input)
-		if FiredBy.Name ~= InternalData.RealOwner.Name then return end
+		if FiredBy ~= InternalData.RealOwner then return end
 		if Input.MouseEvent then
 			Mouse.Target = Input.Target;Mouse.Hit = Input.Hit
 		else
@@ -50,26 +50,44 @@ do
 		end
 	]],InternalData.RealOwner.Character)
 end
+InternalData.NewOwner = setmetatable({},{
+	__index = function (self,Index)
+			local Type = type(InternalData.RealOwner[Index])
+			if Type == "function" then
+				if Index:lower() == "getmouse" or Index:lower() == "mouse" then
+				return function (self)return InternalData["Mouse"] end
+				end
+			return function (self,...)return InternalData.RealOwner[Index](InternalData.RealOwner,...) end
+		elseif Index == "FakePlayer" then
+			return true
+		end
+		return InternalData.RealOwner[Index]
+	end;
+	__tostring = function(self) return tostring(InternalData.RealOwner) end
+})
 InternalData.RealInstance = Instance;Instance = setmetatable({},{
 	__index = function (self,Index)
 		if Index:lower() == 'new' then
 			return function (Type, Parent)
+				if Parent == owner then Parent = InternalData.RealOwner end
+				if InternalData.RealObjs[Parent] then Parent = InternalData.RealObjs[Parent] end
 				local Real = InternalData.RealInstance.new(Type,Parent)
 				if not Type then return end
 				if Type == "BillboardGui" then
-					return setmetatable({},{
+					local ToReturn = setmetatable({},{
 						__index = function (self,Index)
 							return Real[Index]
 						end;
 						__newindex = function (self,Index,Value)
 							if Index:lower() == "playertohidefrom" then
-								if Value.Name == owner.Name then Real[Index] = InternalData.RealOwner else Real[Index] = Value end
+								if Value == owner then Real[Index] = InternalData.RealOwner else Real[Index] = Value end
 							else
 								Real[Index] = Value
 							end
 						end;
 						__tostring = function(self) return tostring(Real) end;
 					})
+					InternalData.RealObjs[ToReturn] = Real;return ToReturn
 				end
 				return Real
 			end
@@ -80,26 +98,6 @@ InternalData.RealInstance = Instance;Instance = setmetatable({},{
 });
 InternalData.RealGame = game;game = setmetatable({},{
 	__index = function (self,Index)
-		local Sandbox = function (Thing)
-			if Thing:IsA("Player") then
-				local RealPlayer = Thing
-				return setmetatable({},{
-					__index = function (self,Index)
-						local Type = type(RealPlayer[Index])
-						if Type == "function" then
-							if Index:lower() == "getmouse" or Index:lower() == "mouse" then
-								return function (self)return InternalData["Mouse"] end
-							end
-							return function (self,...)return RealPlayer[Index](RealPlayer,...) end
-						elseif Index == "FakePlayer" then
-							return true
-						end
-						return RealPlayer[Index]
-					end;
-					__tostring = function(self) return tostring(RealPlayer) end
-				})
-			end
-		end
 		if InternalData.RealGame[Index] then
 			local Type = type(InternalData.RealGame[Index])
 			if Type == "function" then
@@ -114,7 +112,7 @@ InternalData.RealGame = game;game = setmetatable({},{
 										if Type2 == "function" then
 											return function (self,...) return RealService[Index2](RealService,...)end
 										else
-											if Index2:lower() == "localplayer" then return Sandbox(InternalData.RealOwner) end
+											if Index2:lower() == "localplayer" then return InternalData.NewOwner end
 											return RealService[Index2]
 										end
 									end;
