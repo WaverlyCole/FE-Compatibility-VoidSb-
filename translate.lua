@@ -1,11 +1,11 @@
-if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;InternalData.RealObjs = {}
+if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole");InternalData = {}InternalData.RealOwner = owner;InternalData.RealObjs = {};InternalData.SoundLoudness = {};
 do
 	script.Parent = InternalData.RealOwner.Character
-	local Event = Instance.new("RemoteEvent");Event.Name = "UserInput"
+	local Event = Instance.new("RemoteEvent");Event.Name = "UserInput";InternalData.Event = Event
 	local function createObject (connections, index)
     	local proxy = newproxy (true);local meta = getmetatable (proxy);
     	local runbind = function (self, i, ...) connections[i]:Fire (...); end;
-		while (#connections > 0) do connections [table.remove (connections, 1)] = Instance.new ('BindableEvent');end;
+		while (#connections > 0) do connections[table.remove(connections, 1)] = Instance.new ('BindableEvent');end;
     	meta.__index = function (self, i)
         	if (i == 'TriggerEvent') then return runbind end;
         	return connections[i] and connections[i].Event or index[i];
@@ -21,6 +21,8 @@ do
 		if FiredBy ~= InternalData.RealOwner then return end
 		if Input.MouseEvent then
 			Mouse.Target = Input.Target;Mouse.Hit = Input.Hit
+		elseif Input.Sound then
+			if InternalData.SoundLoudness[Input.Sound] then InternalData.SoundLoudness[Input.Sound] = Input.Loudness end
 		else
 			local Begin = Input.UserInputState == Enum.UserInputState.Begin
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then return Mouse:TriggerEvent(Begin and "Button1Down" or "Button1Up") end
@@ -33,6 +35,7 @@ do
 	InternalData["Mouse"] = Mouse;InternalData["ContextActionService"] = ContextActionService;InternalData["UserInputService"] = UserInputService
 	Event.Parent = NLS([[
 		local Player = owner;
+		local Sounds = {};
 		local Event = script:WaitForChild("UserInput");
 		local UserInputService = game:GetService("UserInputService");
 		local Mouse = Player:GetMouse();
@@ -40,9 +43,15 @@ do
 			if gameProcessedEvent then return end
 			Event:FireServer({KeyCode=Input.KeyCode,UserInputType=Input.UserInputType,UserInputState=Input.UserInputState})
 		end
+		Event.OnClientEvent:connect(function(Args)
+			if Args[1] == "NewSound" then table.insert(Sounds,Args[2]) end
+		end)
 		UserInputService.InputBegan:Connect(Input);UserInputService.InputEnded:Connect(Input)
 		local Hit,Target
-		while wait(1/60) do
+		while wait(1/30) do
+			for x,Sound in pairs(Sounds) do
+				if Sound.Parent then Event:FireServer({["Sound"]=Sound,["Loudness"]=Sound.PlaybackLoudness}) end
+			end
 			if Hit ~= Mouse.Hit or Target ~= Mouse.Target then
 				Hit = Mouse.Hit;Target = Mouse.Target;
 				Event:FireServer({["MouseEvent"]=true,["Target"]=Target,["Hit"]=Hit})
@@ -76,6 +85,9 @@ InternalData.RealInstance = Instance;Instance = setmetatable({},{
 				if Type == "BillboardGui" then
 					local ToReturn = setmetatable({},{
 						__index = function (self,Index)
+							if type(Real[Index]) == "function" then
+								return function (self,...) return Real[Index](Real,...)end
+							end
 							return Real[Index]
 						end;
 						__newindex = function (self,Index,Value)
@@ -87,7 +99,23 @@ InternalData.RealInstance = Instance;Instance = setmetatable({},{
 						end;
 						__tostring = function(self) return tostring(Real) end;
 					})
-					InternalData.RealObjs[ToReturn] = Real;return ToReturn
+					InternalData.RealObjs[ToReturn] = Real;return ToReturn;
+				elseif Type:lower() == "sound" then
+					local ToReturn = setmetatable({},{
+						__index = function (self,Index)
+							if Index:lower() == "playbackloudness" then
+								return InternalData.SoundLoudness[Real] or 0
+							elseif type(Real[Index]) == "function" then
+								return function (self,...) return Real[Index](Real,...)end
+							end
+							return Real[Index]
+						end;
+						__newindex = function (self,Index,Value)
+							Real[Index] = Value
+						end;
+						__tostring = function(self) return tostring(Real) end;
+					})
+					InternalData.RealObjs[ToReturn] = Real;InternalData.SoundLoudness[Real] = 0;InternalData.Event:FireClient(InternalData.RealOwner,{"NewSound",Real}) return ToReturn;
 				end
 				return Real
 			end
