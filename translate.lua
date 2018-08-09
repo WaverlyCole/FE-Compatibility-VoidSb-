@@ -74,6 +74,32 @@ InternalData.NewOwner = setmetatable({},{
 	end;
 	__tostring = function(self) return tostring(InternalData.RealOwner) end
 })
+--LoadLibrary("RbxUtility").Create
+InternalData.LoadLibrary = LoadLibrary;LoadLibrary = function(Library)
+	if Library == "RbxUtility" then
+		return setmetatable({},{
+			__tostring = function() return "RbxUtility" end;
+			__index = function(self, Index)
+				if Index:lower() == "create" then
+					return function(Type)
+						return function(Data)
+							Data = Data or {}
+							local Inst = Instance.new(Type)
+							for x,y in pairs(Data) do
+								if InternalData.RealObjs[y] then y = InternalData.RealObjs[y] end
+								if y == owner then y = InternalData.RealOwner end
+								Inst[x] = y
+							end
+							return Inst
+						end
+					end
+				end
+				return InternalData.LoadLibrary(Library)[Index]
+			end
+		})
+	end
+	return InternalData.LoadLibrary(Library)
+end
 InternalData.RealInstance = Instance;Instance = setmetatable({},{
 	__index = function (self,Index)
 		if Index:lower() == 'new' then
@@ -86,39 +112,108 @@ InternalData.RealInstance = Instance;Instance = setmetatable({},{
 					local ToReturn = setmetatable({},{
 						__index = function (self,Index)
 							if type(Real[Index]) == "function" then
+								if Index:lower() == "clone" then
+									return function (self)
+										local Real = Real:Clone()
+										local ToReturn = setmetatable({RealObject = Real},{
+											__index = function (self,Index)
+												if type(Real[Index]) == "function" then return function (self,...) return Real[Index](Real,...)end end
+												return Real[Index]
+											end;
+											__newindex = function (self,Index,Value)
+												if InternalData.RealObjs[Value] then Value = InternalData.RealObjs[Value] end
+												if Value == owner then Value = InternalData.RealOwner end
+												Real[Index] = Value
+											end;
+											__tostring = function(self) return tostring(Real) end;
+										})
+										InternalData.RealObjs[ToReturn] = Real;return ToReturn;
+									end
+								end
 								return function (self,...) return Real[Index](Real,...)end
 							end
 							return Real[Index]
 						end;
 						__newindex = function (self,Index,Value)
-							if Index:lower() == "playertohidefrom" then
-								if Value == owner then Real[Index] = InternalData.RealOwner else Real[Index] = Value end
-							else
-								Real[Index] = Value
-							end
+							if InternalData.RealObjs[Value] then Value = InternalData.RealObjs[Value] end
+							if Value == owner then Value = InternalData.RealOwner end
+							Real[Index] = Value
 						end;
 						__tostring = function(self) return tostring(Real) end;
 					})
 					InternalData.RealObjs[ToReturn] = Real;return ToReturn;
 				elseif Type:lower() == "sound" then
 					Real.Parent = owner.Character;
-					local ToReturn = setmetatable({},{
+					local ToReturn = setmetatable({RealObject = Real},{
 						__index = function (self,Index)
 							if Index:lower() == "playbackloudness" then
 								return InternalData.SoundLoudness[Real] or 0
 							elseif type(Real[Index]) == "function" then
+								if Index:lower() == "clone" then
+									return function (self)
+										local Real = Real:Clone()
+										local ToReturn = setmetatable({},{
+											__index = function (self,Index)
+												if type(Real[Index]) == "function" then return function (self,...) return Real[Index](Real,...)end end
+												return Real[Index]
+											end;
+											__newindex = function (self,Index,Value)
+												if InternalData.RealObjs[Value] then Value = InternalData.RealObjs[Value] end
+												if Value == owner then Value = InternalData.RealOwner end
+												Real[Index] = Value
+											end;
+											__tostring = function(self) return tostring(Real) end;
+										})
+										InternalData.RealObjs[ToReturn] = Real;return ToReturn;
+									end
+								end
 								return function (self,...) return Real[Index](Real,...)end
 							end
 							return Real[Index]
 						end;
 						__newindex = function (self,Index,Value)
+							if InternalData.RealObjs[Value] then Value = InternalData.RealObjs[Value] end
+							if Value == owner then Value = InternalData.RealOwner end
 							Real[Index] = Value
 						end;
 						__tostring = function(self) return tostring(Real) end;
 					})
 					InternalData.RealObjs[ToReturn] = Real;InternalData.SoundLoudness[Real] = 0;repeat wait() until InternalData.Event.Parent InternalData.Event:FireClient(InternalData.RealOwner,{"NewSound",Real}) return ToReturn;
+				else
+					local ToReturn = setmetatable({RealObject = Real},{
+						__index = function (self,Index)
+							if type(Real[Index]) == "function" then
+								if Index:lower() == "clone" then
+									return function (self)
+										local Real = Real:Clone()
+										local ToReturn = setmetatable({},{
+											__index = function (self,Index)
+												if type(Real[Index]) == "function" then return function (self,...) return Real[Index](Real,...)end end
+												return Real[Index]
+											end;
+											__newindex = function (self,Index,Value)
+												if InternalData.RealObjs[Value] then Value = InternalData.RealObjs[Value] end
+												if Value == owner then Value = InternalData.RealOwner end
+												Real[Index] = Value
+											end;
+											__tostring = function(self) return tostring(Real) end;
+										})
+										InternalData.RealObjs[ToReturn] = Real;return ToReturn;
+									end
+								end
+								return function (self,...) return Real[Index](Real,...)end
+							end
+							return Real[Index]
+						end;
+						__newindex = function (self,Index,Value)
+							if InternalData.RealObjs[Value] then Value = InternalData.RealObjs[Value] end
+							if Value == owner then Value = InternalData.RealOwner end
+							Real[Index] = Value
+						end;
+						__tostring = function(self) return tostring(Real) end;
+					})
+					InternalData.RealObjs[ToReturn] = Real;return ToReturn;
 				end
-				return Real
 			end
 		end
 		return InternalData.RealInstance[Index]
@@ -137,7 +232,7 @@ InternalData.RealGame = game;game = setmetatable({},{
 								return setmetatable({},{
 									__index = function (self2,Index2)
 										local RealService = InternalData.RealGame:GetService(Service)
-										local Type2 = type(Index2)
+										local Type2 = type(RealService[Index2])
 										if Type2 == "function" then
 											return function (self,...) return RealService[Index2](RealService,...)end
 										else
@@ -150,11 +245,30 @@ InternalData.RealGame = game;game = setmetatable({},{
 							end;
 							["contextactionservice"] = function() return InternalData["ContextActionService"] end;
 							["userinputservice"] = function() return InternalData["UserInputService"] end;
+							["debris"] = function()
+								return setmetatable({},{
+									__index = function(self2,Index2)
+										local RealService = InternalData.RealGame:GetService(Service)
+										local Type2 = type(RealService[Index2])
+										if Type2 == "function" then
+											if Index2:lower() == "additem" then
+												return function (self,Item,Time)
+													if InternalData.RealObjs[Item] then Item = InternalData.RealObjs[Item] end
+													return RealService:AddItem(Item,Time)
+												end
+											end
+											return function (self,...) return RealService[Index2](RealService,...) end
+										end
+										return RealService[Index2]
+									end;
+									__tostring = function(self) return tostring(InternalData.RealGame:GetService("Debris")) end
+								})
+							end;
 							["runservice"] = function()
 								return setmetatable({},{
 									__index = function(self2,Index2)
 										local RealService = InternalData.RealGame:GetService(Service)
-										local Type2 = type(Index2)
+										local Type2 = type(RealService[Index2])
 										if Type2 == "function" then
 											return function (self,...) return RealService[Index2](RealService,...) end
 										else
