@@ -101,6 +101,7 @@ InternalData.RealInstance = Instance;Instance = setmetatable({},{
 					})
 					InternalData.RealObjs[ToReturn] = Real;return ToReturn;
 				elseif Type:lower() == "sound" then
+					Real.Parent = owner.Character;
 					local ToReturn = setmetatable({},{
 						__index = function (self,Index)
 							if Index:lower() == "playbackloudness" then
