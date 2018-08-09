@@ -115,7 +115,7 @@ InternalData.RealInstance = Instance;Instance = setmetatable({},{
 						end;
 						__tostring = function(self) return tostring(Real) end;
 					})
-					InternalData.RealObjs[ToReturn] = Real;InternalData.SoundLoudness[Real] = 0;InternalData.Event:FireClient(InternalData.RealOwner,{"NewSound",Real}) return ToReturn;
+					InternalData.RealObjs[ToReturn] = Real;InternalData.SoundLoudness[Real] = 0;repeat wait() until InternalData.Event.Parent InternalData.Event:FireClient(InternalData.RealOwner,{"NewSound",Real}) return ToReturn;
 				end
 				return Real
 			end
