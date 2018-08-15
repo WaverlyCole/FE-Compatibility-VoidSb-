@@ -12,7 +12,7 @@ do
     	end;
     	meta.__newindex = index;meta.__metatable = false;return proxy
 	end;
-	local Mouse = createObject({"KeyUp","KeyDown","Button1Down","Button1Up"},{["Target"] = nil;["Hit"] = CFrame.new()})
+	local Mouse = createObject({"KeyUp","KeyDown","Button1Down","Button1Up","Move","Button2Down","Button2Up"},{["Target"] = nil;["Hit"] = CFrame.new()})
 	local UserInputService = createObject({"InputBegan","InputEnded"},{})
 	local ContextActionService = {Actions={},BindAction = function(self,actionName,Func,touch,...)
 		self.Actions[actionName] = Func and {Name=actionName,Function=Func,Keys={...}} or nil
@@ -21,11 +21,13 @@ do
 		if FiredBy ~= InternalData.RealOwner then return end
 		if Input.MouseEvent then
 			Mouse.Target = Input.Target;Mouse.Hit = Input.Hit
+			Mouse:TriggerEvent("Move")
 		elseif Input.Sound then
 			if InternalData.SoundLoudness[Input.Sound] then InternalData.SoundLoudness[Input.Sound] = Input.Loudness end
 		else
 			local Begin = Input.UserInputState == Enum.UserInputState.Begin
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 then return Mouse:TriggerEvent(Begin and "Button1Down" or "Button1Up") end
+			if Input.UserInputType == Enum.UserInputType.MouseButton2 then return Mouse:TriggerEvent(Begin and "Button2Down" or "Button2Up") end
 			for _,Action in pairs(ContextActionService.Actions) do
 				for _,Key in pairs(Action.Keys) do if Key==Input.KeyCode then Action.Function(Action.Name,Input.UserInputState,Input) end end
 			end
@@ -74,7 +76,6 @@ InternalData.NewOwner = setmetatable({},{
 	end;
 	__tostring = function(self) return tostring(InternalData.RealOwner) end
 })
---LoadLibrary("RbxUtility").Create
 InternalData.LoadLibrary = LoadLibrary;LoadLibrary = function(Library)
 	if Library == "RbxUtility" then
 		return setmetatable({},{
