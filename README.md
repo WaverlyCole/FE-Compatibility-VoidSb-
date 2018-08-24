@@ -1,8 +1,5 @@
 # FE-Compatibility
 
-**Attention! Testing Re-Write.**
-        To opt-out change or add Beta = false at the top of auto-updating.lua
-
 This will translate traditional LocalScripts to be compatible with the new FE requirements.
 
 Instructions:
