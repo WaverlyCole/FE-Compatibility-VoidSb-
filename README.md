@@ -1,6 +1,6 @@
 # FE-Compatibility
 
-**Currently working on a re-write for cleaner and better code.**
+# **Testing Re-Write.**
 
 This will translate traditional LocalScripts to be compatible with the new FE requirements.
 
