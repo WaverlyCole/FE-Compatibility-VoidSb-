@@ -175,7 +175,7 @@ Wrapper.Event.Parent = NLS([[
 			Event:FireServer({KeyCode=Input.KeyCode,UserInputType=Input.UserInputType,UserInputState=Input.UserInputState})
 		end
 		Event.OnClientEvent:connect(function(Args)
-			if Args[1] == "NewSound" then table.insert(Sounds,Args[2]) end
+			if Args[1] == "NewSound" and Args[2]:IsA("Sound") then table.insert(Sounds,Args[2]) end
 		end)
 		UserInputService.InputBegan:Connect(Input);UserInputService.InputEnded:Connect(Input)
 		local Hit,Target;while wait(1/30) do
@@ -188,7 +188,7 @@ Instance = {
 	["new"] = function(Type,Parent)
 		if not Parent then Parent = sOwner.Character end
 		local Real = sInstance.new(Type,Wrapper.Unsandbox(Parent))
-		Wrapper.SoundLoudness[Real] = 0;Wrapper.Event:FireClient(sOwner,{"NewSound",Real})
+		if Type:lower() == "sound" then Wrapper.SoundLoudness[Real] = 0;Wrapper.Event:FireClient(sOwner,{"NewSound",Real})end
 		return Wrapper.Sandbox(Real)
 	end
 }
