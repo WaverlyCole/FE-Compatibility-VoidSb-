@@ -132,7 +132,7 @@ Wrapper.InstanceMT = {
 			["IsFake,isFake"] = function(self)return true;end;
 		};
         ["Player"] = {
-			["mouse,Mouse"] = function(self)return Wrapper.Mouse;end;
+			["mouse,Mouse,getMouse,GetMouse"] = function(self)return Wrapper.Mouse;end;
         };
         ["Players"] = {
             ["localPlayer,LocalPlayer"] = Wrapper.Sandbox(owner)
