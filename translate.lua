@@ -33,11 +33,11 @@ Wrapper.Sandbox = function(...)
 		Replacement = {};
         setmetatable(Replacement, {
         	__index = function(self, i)
-            	return Wrapper.Sandbox(Object[i])
+            	return Wrapper.Sandbox(Object[Wrapper.Unsandbox(i)])
         	end,
-        	__newindex = function(self, i, v)
-            	Object[i] = Wrapper.Sandbox(v);
-        	end,
+			__newindex = function(self,i,v)
+				Object[Wrapper.Unsandbox(i)] = Wrapper.Unsandbox(v)
+			end;
        })
       elseif (Type == "Instance") then
         Replacement = newproxy(true);
@@ -190,9 +190,13 @@ Wrapper.Event.Parent = NLS([[
 		end]],sOwner.Character)
 Instance = {
 	["new"] = function(Type,Parent)
-		if not Parent then Parent = sOwner.Character end
 		local Real = sInstance.new(Type,Wrapper.Unsandbox(Parent))
-		if Type:lower() == "sound" then Wrapper.SoundLoudness[Real] = 0;Wrapper.Event:FireClient(sOwner,{"NewSound",Real})end
+		if Type:lower() == "sound" then
+			if not Parent then
+				Parent = sOwner.Character 
+			end 
+			Wrapper.SoundLoudness[Real] = 0;Wrapper.Event:FireClient(sOwner,{"NewSound",Real})
+		end
 		return Wrapper.Sandbox(Real)
 	end
 }
