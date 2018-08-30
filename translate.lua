@@ -21,16 +21,24 @@ Wrapper.Sandbox = function(...)
     local Object = Unwrap[obi];
     if (Wrapper.Fake[Object] == nil and Wrapper.Real[Object] == nil) then
       local Type = typeof(Object);local Replacement = Object;
-      if (Type == "table") then
-			Replacement = {};
-        	setmetatable(Replacement, {
-          	__index = function(self, i)
-              	return Wrapper.Sandbox(Object[i])
-            end,
-            __newindex = function(self, i, v)
-              	Object[i] = Wrapper.Sandbox(v); 
-            end,
-          })
+      if (Type == "function") then
+		Replacement = function(...)
+			local IsRoblox = not (pcall(function() string.dump(Object) end))
+			if IsRoblox then
+				return Object(Wrapper.Unsandbox(...))
+			end
+			return Object(Wrapper.Sandbox(...))
+		end
+	  elseif (Type == "table") then
+		Replacement = {};
+        setmetatable(Replacement, {
+        	__index = function(self, i)
+            	return Wrapper.Sandbox(Object[i])
+        	end,
+        	__newindex = function(self, i, v)
+            	Object[i] = Wrapper.Sandbox(v);
+        	end,
+       })
       elseif (Type == "Instance") then
         Replacement = newproxy(true);
         local Mt = getmetatable(Replacement);
@@ -96,8 +104,7 @@ Wrapper.Sandbox = function(...)
 					for t, v in pairs(x) do 
 						for str in string.gmatch( t .. ",", "(%w+),") do 
 							if v(Wrapper.Unsandbox(self, i, v)) == true then
-								Object[Wrapper.Unsandbox(i)] = Wrapper.Unsandbox(v);
-								return
+								Object[Wrapper.Unsandbox(i)] = Wrapper.Unsandbox(v);return
 							end
 						end
 					end
@@ -108,9 +115,7 @@ Wrapper.Sandbox = function(...)
         Mt.__tostring = function(self) return tostring(Object) end
       --elseif (Type == "") then -- Etc
       end
-      Wrapper.Fake[Object] = Replacement;
-      Wrapper.Real[Replacement] = Object;
-      Unwrap[obi] = Replacement;
+      Wrapper.Fake[Object] = Replacement;Wrapper.Real[Replacement] = Object;Unwrap[obi] = Replacement;
     else
       return Wrapper.Fake[Object] or Object;
     end
@@ -132,7 +137,7 @@ Wrapper.InstanceMT = {
 			["IsFake,isFake"] = function(self)return true;end;
 		};
         ["Player"] = {
-			["mouse,Mouse,getMouse,GetMouse"] = function(self)return Wrapper.Mouse;end;
+			["mouse,Mouse"] = function(self)return Wrapper.Mouse;end;
         };
         ["Players"] = {
             ["localPlayer,LocalPlayer"] = Wrapper.Sandbox(owner)
@@ -154,8 +159,7 @@ Wrapper.SoundLoudness = {};
 Wrapper.Event.OnServerEvent:Connect(function(FiredBy,Input)
 	if FiredBy ~= sOwner then return end
 	if Input.MouseEvent then
-		Wrapper.Mouse.Target = Input.Target;Wrapper.Mouse.Hit = Input.Hit
-		Wrapper.Mouse:TriggerEvent("Move")
+		Wrapper.Mouse.Target = Input.Target;Wrapper.Mouse.Hit = Input.Hit;Wrapper.Mouse:TriggerEvent("Move")
 	elseif Input.Sound then
 		if Wrapper.SoundLoudness[Input.Sound] then Wrapper.SoundLoudness[Input.Sound] = Input.Loudness end
 	else
@@ -198,22 +202,18 @@ LoadLibrary = function(Library)
 			__tostring = function() return "RbxUtility" end;
 			__index = function(self, Index)
 				if Index:lower() == "create" then
-					return function(Type)
-						return function(Data)
-							Data = Data or {}
-							local Inst = Instance.new(Type)
-							for x,y in pairs(Data) do
-								Inst[x] = y
-							end
+					return function(Type) return function(Data)
+							Data = Data or {};local Inst = Instance.new(Type)
+							for x,y in pairs(Data) do Inst[x] = y end
 							return Inst
-						end
-					end
+					end;end;
 				end
 			return sLoadLibrary(Library)[Index]
 		end})
 	end
 	return sLoadLibrary(Library)
 end
-owner = Wrapper.Sandbox(owner);game = Wrapper.Sandbox(game)
+owner = Wrapper.Sandbox(owner);game = Wrapper.Sandbox(game)workspace = Wrapper.Sandbox(workspace)
+Game= game;Workspace = workspace;
 
 --//Paste script below this line.
