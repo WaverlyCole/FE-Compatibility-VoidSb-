@@ -2,11 +2,12 @@ if game:GetService("RunService"):IsClient() then error("Please run as a server s
 local Wrapper = {};Wrapper.Fake = {};Wrapper.Real = {};Wrapper.Data = {};
 local sGame = game;local sScript = script;local sOwner = owner;local sInstance = Instance;local sLoadLibrary = LoadLibrary
 Wrapper.Event = Instance.new("RemoteEvent");Wrapper.Event.Name = "UserInput";
-Wrapper.CreateObject = function(connections, index)
+Wrapper.CreateObject = function(connectionsrequested, index)
+	local connections = {};
     local proxy = newproxy (true);local meta = getmetatable (proxy);
 	local runbind = function (self, i, ...) connections[i]:Fire (...); end;
-	for i,v in pairs(connections) do
-		connections[i] = Instance.new ('BindableEvent')
+	for i,v in pairs(connectionsrequested) do
+		connections[v] = Instance.new ('BindableEvent')
 	end
     meta.__index = function (self, i)
         if (i == 'TriggerEvent') then return runbind end;
