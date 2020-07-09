@@ -5,7 +5,7 @@ Wrapper.Event = Instance.new("RemoteEvent");Wrapper.Event.Name = "UserInput";
 Wrapper.CreateObject = function(connections, index)
     local proxy = newproxy (true);local meta = getmetatable (proxy);
     local runbind = function (self, i, ...) connections[i]:Fire (...); end;
-	while (#connections > 0) do connections[table.remove(connections, 1)] = Instance.new ('BindableEvent');end;
+	while (#connections > 0) do print(#connections) connections[table.remove(connections, 1)] = Instance.new ('BindableEvent');end;
     meta.__index = function (self, i)
         if (i == 'TriggerEvent') then return runbind end;
         return connections[i] and connections[i].Event or index[i];
