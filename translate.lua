@@ -3,12 +3,10 @@ local Wrapper = {};Wrapper.Fake = {};Wrapper.Real = {};Wrapper.Data = {};
 local sGame = game;local sScript = script;local sOwner = owner;local sInstance = Instance;local sLoadLibrary = LoadLibrary
 Wrapper.Event = Instance.new("RemoteEvent");Wrapper.Event.Name = "UserInput";
 Wrapper.CreateObject = function(connectionsrequested, index)
-	local connections = {};
+	local connections = {}
     local proxy = newproxy (true);local meta = getmetatable (proxy);
-	local runbind = function (self, i, ...) connections[i]:Fire (...); end;
-	for i,v in pairs(connectionsrequested) do
-		connections[v] = Instance.new ('BindableEvent')
-	end
+	local runbind = function (self, i, ...) print(i,...) connections[i]:Fire (...); end;
+	while (#connectionsrequested > 0) do connections[table.remove(connectionsrequested, 1)] = Instance.new ('BindableEvent');end;
     meta.__index = function (self, i)
         if (i == 'TriggerEvent') then return runbind end;
         return connections[i] and connections[i].Event or index[i];
