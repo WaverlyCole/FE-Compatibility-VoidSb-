@@ -1,4 +1,4 @@
-if game:GetService("RunService"):IsClient()then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole & Fireboltofdeath");print("https://github.com/WaverlyCole/FE-Compatibility-VoidSb-")
+if game:GetService("RunService"):IsClient() then error("Please run as a server script. Use h/ instead of hl/.")end;print("FE Compatibility by WaverlyCole & Fireboltofdeath");print("https://github.com/WaverlyCole/FE-Compatibility-VoidSb-")
 local Wrapper = {};Wrapper.Fake = {};Wrapper.Real = {};Wrapper.Data = {};
 local sGame = game;local sScript = script;local sOwner = owner;local sInstance = Instance;local sLoadLibrary = LoadLibrary
 Wrapper.Event = Instance.new("RemoteEvent");Wrapper.Event.Name = "UserInput";
@@ -12,6 +12,9 @@ Wrapper.CreateObject = function(connections, index)
     end;
     meta.__newindex = index;meta.__metatable = false;return proxy
 end;
+Wrapper.iscclosure = function(f)
+    return not pcall(setfenv, f, getfenv(f))
+end
 Wrapper.Mouse = Wrapper.CreateObject({"KeyUp","KeyDown","Button1Down","Button1Up","Move","Button2Down","Button2Up"},{["Target"] = nil;["Hit"] = CFrame.new()})
 Wrapper.UserInputService = Wrapper.CreateObject({"InputBegan","InputEnded"},{})
 Wrapper.ContextActionService = {Actions={};BindAction = function(self,actionName,Func,touch,...)self.Actions[actionName] = Func and {Name=actionName,Function=Func,Keys={...}} or nil end;UnBindAction = function(self,actionName,Func,touch,...)self.Actions[actionName] = Func and {Name=actionName,Function=Func,Keys={...}} or nil end};
@@ -23,8 +26,7 @@ Wrapper.Sandbox = function(...)
       local Type = typeof(Object);local Replacement = Object;
       if (Type == "function") then
 		Replacement = function(...)
-			local IsRoblox = not (pcall(function() string.dump(Object) end))
-			if IsRoblox then
+			if Wrapper.iscclosure(Object) then
 				return Object(Wrapper.Unsandbox(...))
 			end
 			return Object(Wrapper.Sandbox(...))
