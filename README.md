@@ -1,5 +1,7 @@
 # FE-Compatibility
 
+# THIS IS BROKEN DUE TO THE ROBLOX LUAU UPDATE
+
 This will translate traditional LocalScripts to be compatible with the new FE requirements.
 
 Instructions:
